@@ -77,19 +77,30 @@ class IntegracaoController{
                 'Content-Type': 'application/json'
             }; 
 
-           let tipoIndice = 'CPF'
-           const indice = [];
+            
+            let tipoIndice = 'CPF'
+            const indice = [];
 
-           const novoElemento = {
-            nome: "Tipo de Documentos",
-            operador: "=",
-            valor: tipoIndice
-          };
-          
-          indice.push(novoElemento);
-    
+            const novoElemento = {
+                "nome": "Tipo de Documentos",
+                "operador": "=",
+                "valor": tipoIndice
+            };
+
+            indice.push(novoElemento);
+
+            
+            const post = {
+                "nomes_tipodocumento": [tipoDoc],
+                "resultados_pagina": 15000,
+                "resultado_inicial": 0,
+                "dataDe": "2023-06-01",
+                "indiceBusca": indice
+            };
+            
+
             // Fazer a requisição POST usando Axios
-            axios.post(url, {headers})
+            axios.post(url, post, {headers})
             .then(response => {
                 //console.log(response.data);
                 console.log('Deu certo');
