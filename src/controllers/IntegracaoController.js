@@ -70,19 +70,21 @@ class IntegracaoController{
             if(key.rsaKey){
                 auth = key.rsaKey
             }
-            //console.log(auth)
+            console.log(auth)
 
             const headers = {
-                'x-api-key:': auth,
-                'Content-Type': 'application/json'
+                "x-api-key": auth,
+                "Content-Type": "application/json"
             }; 
 
             
-            let tipoIndice = 'CPF'
+            const tipoDoc = 'CPF'
+
+            let tipoIndice = 'UNIEVANGELICA'
             const indice = [];
 
             const novoElemento = {
-                "nome": "Tipo de Documentos",
+                "nome": "MANTIDA",
                 "operador": "=",
                 "valor": tipoIndice
             };
@@ -102,13 +104,13 @@ class IntegracaoController{
             // Fazer a requisição POST usando Axios
             axios.post(url, post, {headers})
             .then(response => {
-                //console.log(response.data);
-                console.log('Deu certo');
-                
+                console.log('Deu certo')
+                //console.log(response.data.documentos);
+                res.status(200).json(response.data.documentos)                
             })
             .catch(error => {
-                //console.error(error);
-                res.status(500).json({errors: [{msg: 'Error.' + ' ' + error.response.data.error}]})
+                console.error(error);
+                res.status(500).json({errors: [{msg: 'Error.' + ' ' + error}]})
             });
 
         }catch (error) {
