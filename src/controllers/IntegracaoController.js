@@ -4,7 +4,8 @@ class IntegracaoController{
 
     constructor() {
         this.autenticacao = this.autenticacao.bind(this);
-        this.api = this.api.bind(this);
+        this.consultaDocumentos = this.consultaDocumentos.bind(this);
+        this.trataDados = this.trataDados.bind(this);
     }
  
     index (req,res){
@@ -56,7 +57,7 @@ class IntegracaoController{
     }
 
     
-    async api(req,res){
+    async consultaDocumentos(){
 
         try{
 
@@ -78,7 +79,16 @@ class IntegracaoController{
             }; 
 
             
-            const tipoDoc = 'CPF'
+           /* const tipoDoc = [
+                'CPF', 'EXTENSAO', 'CARTEIRA DE IDENTIDADE', 'CERTIDÃO DE CASAMENTO', 
+                'CERTIDÃO DE NASCIMENTO', 'CERTIFICADO ENSINO MÉDIO', 
+                'DOCUMENTO MILITAR', 'HISTÓRICO ESCOLAR',
+                'TERMO DE RESPONSABILIDADE', 'TÍTULO ELEITOR'
+            ]*/
+
+            const idsTiposDoc = [79,85,84,80,88,95,81,78,86]
+
+            //console.log(tipoDoc)
 
             let tipoIndice = 'UNIEVANGELICA'
             const indice = [];
@@ -90,10 +100,10 @@ class IntegracaoController{
             };
 
             indice.push(novoElemento);
-
             
             const post = {
-                "nomes_tipodocumento": [tipoDoc],
+                "ids_tipodocumento": idsTiposDoc,
+                //"nomes_tipodocumento": tipoDoc,
                 "resultados_pagina": 15000,
                 "resultado_inicial": 0,
                 "dataDe": "2023-06-01",
@@ -106,16 +116,30 @@ class IntegracaoController{
             .then(response => {
                 console.log('Deu certo')
                 //console.log(response.data.documentos);
-                res.status(200).json(response.data.documentos)                
+                //res.status(200).json(response.data.documentos)  
+                return response.data.documentos;              
             })
             .catch(error => {
                 console.error(error);
-                res.status(500).json({errors: [{msg: 'Error.' + ' ' + error}]})
+                return error
+                //res.status(500).json({errors: [{msg: 'Error.' + ' ' + error}]})
             });
 
         }catch (error) {
             console.error('Erro na autenticação:', error);
         }
+    }
+
+    async trataDados(){
+        
+        try{
+            const dados = await this.consultaDocumentos()
+            console.log(dados)
+            
+        }catch(error){
+            console.log("Erro no tratamento de dados: ", error)
+        }
+        
     }
 
 }

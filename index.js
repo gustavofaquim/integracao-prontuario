@@ -24,7 +24,8 @@ app.use(express.json());
 
 // Rotas 
 app.get('/',  IntegracaoController.index)
-app.get('/api',  IntegracaoController.api)
+app.get('/api',  IntegracaoController.consultaDocumentos)
+app.get('/teste',  IntegracaoController.trataDados)
 app.get('/auth',  IntegracaoController.autenticacao)
 
 
