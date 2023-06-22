@@ -90,7 +90,7 @@ class IntegracaoController{
 
             //console.log(tipoDoc)
 
-            let tipoIndice = 'UNIEVANGELICA'
+            let tipoIndice = 'FAEGO'
             const indice = [];
 
             const novoElemento = {
@@ -112,10 +112,10 @@ class IntegracaoController{
             
 
             // Fazer a requisição POST usando Axios
-            axios.post(url, post, {headers})
+            /*axios.post(url, post, {headers})
             .then(response => {
                 console.log('Deu certo')
-                //console.log(response.data.documentos);
+                console.log(response.data.documentos);
                 //res.status(200).json(response.data.documentos)  
                 return response.data.documentos;              
             })
@@ -123,7 +123,20 @@ class IntegracaoController{
                 console.error(error);
                 return error
                 //res.status(500).json({errors: [{msg: 'Error.' + ' ' + error}]})
-            });
+            });*/
+            return new Promise((resolve, reject) => {
+                // Fazer a requisição POST usando Axios
+                axios.post(url, post, { headers })
+                  .then(response => {
+                    console.log('Deu certo');
+                    //console.log(response.data.documentos);
+                    resolve(response.data.documentos);
+                  })
+                  .catch(error => {
+                    console.error(error);
+                    reject(error);
+                  });
+              });
 
         }catch (error) {
             console.error('Erro na autenticação:', error);
@@ -134,10 +147,12 @@ class IntegracaoController{
         
         try{
             const dados = await this.consultaDocumentos()
-            console.log(dados)
+            console.log('Entrou no tratamento de dados')
+            return dados
             
         }catch(error){
             console.log("Erro no tratamento de dados: ", error)
+            throw error;
         }
         
     }

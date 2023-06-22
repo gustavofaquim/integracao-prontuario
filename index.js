@@ -25,7 +25,16 @@ app.use(express.json());
 // Rotas 
 app.get('/',  IntegracaoController.index)
 app.get('/api',  IntegracaoController.consultaDocumentos)
-app.get('/teste',  IntegracaoController.trataDados)
+//app.get('/teste',  IntegracaoController.trataDados)
+app.get('/teste', async (req, res) => {
+    try {
+      const dados = await IntegracaoController.trataDados();
+      res.send(`Dados tratados com sucesso`);
+    } catch (error) {
+      console.error('Erro no tratamento de dados:', error);
+      res.status(500).send('Ocorreu um erro no tratamento de dados');
+    }
+});
 app.get('/auth',  IntegracaoController.autenticacao)
 
 
