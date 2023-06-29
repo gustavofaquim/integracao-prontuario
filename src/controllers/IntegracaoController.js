@@ -1,4 +1,5 @@
 import axios from "axios";
+import DocumentosPesssoaDAO from "../connections/DocumentosPesssoaDAO.js";
 
 class IntegracaoController{
 
@@ -146,20 +147,21 @@ class IntegracaoController{
     async dadosAluno(matricula){
 
         try{
-        
+           
+            //const url = `http://172.16.16.37:8080/api/matricula/codAluno/2110744/obterAluno`;
             const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
 
             const headers = {
-                'Authorization': 'Basic YXBpdXNlcjphcGl1c2VyQDEyMw==',
+               'Authorization': 'Basic YXBpdXNlcjphcGl1c2VyQDEyMw==',
                 "Content-Type": "application/json"
             }
 
             return new Promise((resolve, reject) => {
                 // Fazer a requisição POST usando Axios
-                axios.post(url, null, { headers })
+                axios.get(url, { headers })
                 .then(response => {
-                    console.log('API do Lyceum');
-                    console.log(response.data);
+                    //console.log('API do Lyceum');
+                    //console.log(response.data);
                     resolve(response.data);
                 })
                 .catch(error => {
@@ -170,8 +172,10 @@ class IntegracaoController{
 
         }catch(error){
             console.error('Erro na API do Lyceum:', error);
+            throw error; // Rejeita a Promessa com o erro
         }
     }
+
 
     async trataDados(){
         
@@ -179,9 +183,13 @@ class IntegracaoController{
             const dados = await this.consultaDocumentos()
             console.log('Entrou no tratamento de dados')
             
-            dados.forEach(e => {
-                //console.log(e)
-                //console.log('---------------');
+            const documentosAbaris = [];
+
+            const resultados = await Promise.all(dados.map(async (e) => {
+
+                //console.log('------ DOCS ------')
+               // console.log(e);
+
 
                 let id_doc;
 
@@ -212,30 +220,94 @@ class IntegracaoController{
                         break; 
                 }
 
-                let matricula = e.documentoIndice[3].valor;
+              const matricula = [];   
+              const pessoaPromises = e.documentoIndice
+                .filter(indice => indice.nomeIndice == 'MATRICULA')
+                .map(async indice => {
+                    matricula.unshift(indice.valor);
+                    
+                    const pessoa = await this.dadosAluno(matricula);
+                    
+                    return pessoa;
+                });
 
-                const pessoa =  this.dadosAluno(matricula).pessoa;
+
+                const pessoas = await Promise.all(pessoaPromises);
+
+                const caminhoCompleto = e.caminhoCompleto;
+                
+                const partes = caminhoCompleto.split('/');
+                const nomeDocumento = partes[partes.length - 1];
                 
 
-                const documentosPessoais = {
-                    ID_DOCUMENTO : id_doc,
-                    PESSOA: pessoa,
-                    MATRICULA: matricula,
+                const idDocGeD = e.id;
+                
+                const dataAtual = new Date();
+                const ano = dataAtual.getFullYear();
+                const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
+                const dia = dataAtual.getDate().toString().padStart(2, '0');
+                const horas = dataAtual.getHours().toString().padStart(2, '0');
+                const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
+                const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
+                const milissegundos = dataAtual.getMilliseconds().toString().padStart(3, '0');
+                
+                const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}.${milissegundos}`;
 
-                }
-            });
 
-            
-            
-            
-            return dados
-            
+                
+                // Montando o Array com os dados a serem salvo no Lyceum
+                pessoas.forEach(pessoa => {
+  
+                    let p = pessoa.pessoa
+                    documentosAbaris.push({
+                        ID_DOCUMENTO_PROCESSO : id_doc,
+                        PESSOA: p,
+                        ALUNO: matricula[0],
+                        STATUS: 'Entregue',
+                        DT_ENTREGA: dataHoraFormatada,
+                        ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
+                        EXTENSAO: 'pdf', 
+                        ORIGEM: 'Migração Ábaris',
+                        ACEITO: 'S',
+                        FORMA_ARMAZENAMENTO: 'Nuvem',
+                        NOME_ARQUIVO: nomeDocumento,
+                        DT_INSERCAO: dataHoraFormatada,
+                        DT_ULT_ALT: dataHoraFormatada,
+                        CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
+                    })
+                    //console.log(documentosPessoais)
+                })
+                
+            }));
+            return documentosAbaris;
         }catch(error){
             console.log("Erro no tratamento de dados: ", error)
             throw error;
         }
+    }
+
+
+    async inserirDados(){
+
+        // Documentos retornados da API do Ábaris
+        const documentosAbaris = await this.trataDados();
+        console.log(documentosAbaris);
+
+        // Documentos retornados do Lyceum (via banco)
+        const documentosLyceum = await DocumentosPesssoaDAO.listarDocumentos();
+    
+        //const documentosPessoa = [];
+
+        const documentosPessoa = documentosAbaris.filter(item1 => !documentosLyceum.some(item2 => item1.ID_DOC_GED === item2.ID_DOC_GED));
+
+        console.log(documentosPessoa);
+
+
         
     }
+
+
+ 
 
 }
 
