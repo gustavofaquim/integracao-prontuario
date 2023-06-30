@@ -300,7 +300,8 @@ class IntegracaoController{
 
         const documentosPessoa = documentosAbaris.filter(item1 => !documentosLyceum.some(item2 => item1.ID_DOC_GED === item2.ID_DOC_GED));
 
-        console.log(documentosPessoa);
+        console.log(documentosPessoa)
+        console.log(documentosPessoa.length)
 
 
         
