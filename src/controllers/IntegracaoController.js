@@ -108,6 +108,7 @@ class IntegracaoController{
                 "resultados_pagina": 15000,
                 "resultado_inicial": 0,
                 "dataDe": "2023-06-01",
+                "dataAte": "2023-07-01",
                 "indiceBusca": indice
             };
             
@@ -200,6 +201,9 @@ class IntegracaoController{
                     case 'HISTÓRICO ESCOLAR':
                         id_doc = 46;
                         break; 
+                    case 'CERTIFICADO ENSINO MÉDIO':
+                        id_doc = 45;
+                        break; 
                     case 'CERTIDÃO CASAMENTO':
                         id_doc = 48;
                         break;
@@ -220,28 +224,16 @@ class IntegracaoController{
                         break; 
                 }
 
-              const matricula = [];   
-              const pessoaPromises = e.documentoIndice
-                .filter(indice => indice.nomeIndice == 'MATRICULA')
-                .map(async indice => {
-                    matricula.unshift(indice.valor);
-                    
-                    const pessoa = await this.dadosAluno(matricula);
-                    
-                    return pessoa;
-                });
-
-
-                const pessoas = await Promise.all(pessoaPromises);
-
-                const caminhoCompleto = e.caminhoCompleto;
+                const matricula = [];
                 
+                const caminhoCompleto = e.caminhoCompleto;
+                    
                 const partes = caminhoCompleto.split('/');
                 const nomeDocumento = partes[partes.length - 1];
                 
 
                 const idDocGeD = e.id;
-                
+
                 const dataAtual = new Date();
                 const ano = dataAtual.getFullYear();
                 const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
@@ -254,15 +246,18 @@ class IntegracaoController{
                 const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}.${milissegundos}`;
 
 
+                const pessoaPromises = e.documentoIndice
+                .filter(indice => indice.nomeIndice == 'MATRICULA')
+                .map(async indice => {
+                    
+                    //matricula.unshift(indice.valor);
+                    
+                    const pessoa = await this.dadosAluno(indice.valor);
                 
-                // Montando o Array com os dados a serem salvo no Lyceum
-                pessoas.forEach(pessoa => {
-  
-                    let p = pessoa.pessoa
                     documentosAbaris.push({
                         ID_DOCUMENTO_PROCESSO : id_doc,
-                        PESSOA: p,
-                        ALUNO: matricula[0],
+                        PESSOA: pessoa,
+                        ALUNO: indice.valor,
                         STATUS: 'Entregue',
                         DT_ENTREGA: dataHoraFormatada,
                         ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
@@ -275,9 +270,7 @@ class IntegracaoController{
                         DT_ULT_ALT: dataHoraFormatada,
                         CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
                     })
-                    //console.log(documentosPessoais)
-                })
-                
+                });
             }));
             return documentosAbaris;
         }catch(error){
@@ -291,19 +284,45 @@ class IntegracaoController{
 
         // Documentos retornados da API do Ábaris
         const documentosAbaris = await this.trataDados();
-        console.log(documentosAbaris);
-
+       
         // Documentos retornados do Lyceum (via banco)
         const documentosLyceum = await DocumentosPesssoaDAO.listarDocumentos();
-    
-        //const documentosPessoa = [];
+        
+        // Array para armazenar os documentos ausentes
+        const documentosAusentes = [];
 
-        const documentosPessoa = documentosAbaris.filter(item1 => !documentosLyceum.some(item2 => item1.ID_DOC_GED === item2.ID_DOC_GED));
+        // Percorrer os documentos do Ábaris
+        for (const docAbaris of documentosAbaris) {
+            let documentoEncontrado = false;
 
-        console.log(documentosPessoa)
-        console.log(documentosPessoa.length)
+            // Percorrer os documentos do Lyceum
+            for (const docLyceum of documentosLyceum) {
+                //console.log('Ábaris: ' + docAbaris.ID_DOC_GED +  ' Lyceum: ' + docLyceum.ID_DOC_GED)
+                
+                if (docAbaris.ID_DOC_GED == docLyceum.ID_DOC_GED) {
+                        //console.log('---------------------------Achou um documento -------------------------------')
+                        //console.log('Ábaris: ' + docAbaris.ID_DOC_GED +  ' Lyceum: ' + docLyceum.ID_DOC_GED)
+                        documentoEncontrado = true;
+                        break;
+                }
+            }
+
+            // Se o documento não foi encontrado no Lyceum, adicionar aos documentos ausentes
+            if (!documentoEncontrado) {
+                documentosAusentes.push(docAbaris);
+            }
+        }
 
 
+       // console.log("Documentos Ausentes: " + documentosAusentes)
+        console.log("Documentos Abaris: " + documentosAbaris.length)
+        console.log("Documentos Lyceum: " + documentosLyceum.length)
+        console.log("Documentos Ausentes: " + documentosAusentes.length)
+
+       for(const docAusentes of documentosAusentes){
+            console.log(docAusentes)
+           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
+       }
         
     }
 

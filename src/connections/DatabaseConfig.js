@@ -1,6 +1,7 @@
 
 class DatabaseConfig{
   constructor() {
+    //this.server = 'DES03';
     this.server = 'DES03';
     this.database = 'lyceum';
     this.user = 'lyceum';
