@@ -101,13 +101,27 @@ class IntegracaoController{
             };
 
             indice.push(novoElemento);
+
+
+            const dataAtual = new Date();
+            const ano = dataAtual.getFullYear();
+            const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
+            const dia = dataAtual.getDate().toString().padStart(2, '0');
+            const horas = dataAtual.getHours().toString().padStart(2, '0');
+            const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
+            const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
+            const milissegundos = dataAtual.getMilliseconds().toString().padStart(3, '0');
+            
+            const dataAtualFormatada = `${ano}-${mes}-${dia}`;
+            console.log(dataAtualFormatada);
+
             
             const post = {
                 "ids_tipodocumento": idsTiposDoc,
                 //"nomes_tipodocumento": tipoDoc,
                 "resultados_pagina": 15000,
                 "resultado_inicial": 0,
-                "dataDe": "2023-06-01",
+                "dataDe": "2023-07-01",
                 "dataAte": "2023-07-07",
                 "assinados": true,
                 "nao_assinados": false,
