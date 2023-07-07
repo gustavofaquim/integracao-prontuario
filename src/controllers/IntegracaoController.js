@@ -108,29 +108,17 @@ class IntegracaoController{
                 "resultados_pagina": 15000,
                 "resultado_inicial": 0,
                 "dataDe": "2023-06-01",
-                "dataAte": "2023-07-01",
+                "dataAte": "2023-07-07",
+                "assinados": true,
+                "nao_assinados": false,
                 "indiceBusca": indice
             };
             
-
-            // Fazer a requisição POST usando Axios
-            /*axios.post(url, post, {headers})
-            .then(response => {
-                console.log('Deu certo')
-                console.log(response.data.documentos);
-                //res.status(200).json(response.data.documentos)  
-                return response.data.documentos;              
-            })
-            .catch(error => {
-                console.error(error);
-                return error
-                //res.status(500).json({errors: [{msg: 'Error.' + ' ' + error}]})
-            });*/
             return new Promise((resolve, reject) => {
                 // Fazer a requisição POST usando Axios
                 axios.post(url, post, { headers })
                   .then(response => {
-                    console.log('Deu certo');
+                    //console.log('Deu certo');
                     //console.log(response.data.documentos);
                     resolve(response.data.documentos);
                   })
@@ -149,8 +137,8 @@ class IntegracaoController{
 
         try{
            
-            //const url = `http://172.16.16.37:8080/api/matricula/codAluno/2110744/obterAluno`;
             const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
+            //const url = `http://172.16.16.106:8080/api/matricula/codAluno/${matricula}/obterAluno`;
 
             const headers = {
                'Authorization': 'Basic YXBpdXNlcjphcGl1c2VyQDEyMw==',
@@ -256,7 +244,7 @@ class IntegracaoController{
                 
                     documentosAbaris.push({
                         ID_DOCUMENTO_PROCESSO : id_doc,
-                        PESSOA: pessoa,
+                        PESSOA: pessoa.pessoa,
                         ALUNO: indice.valor,
                         STATUS: 'Entregue',
                         DT_ENTREGA: dataHoraFormatada,
@@ -272,7 +260,9 @@ class IntegracaoController{
                     })
                 });
             }));
+
             return documentosAbaris;
+
         }catch(error){
             console.log("Erro no tratamento de dados: ", error)
             throw error;
@@ -314,16 +304,17 @@ class IntegracaoController{
         }
 
 
-       // console.log("Documentos Ausentes: " + documentosAusentes)
+       console.log(documentosAusentes)
         console.log("Documentos Abaris: " + documentosAbaris.length)
         console.log("Documentos Lyceum: " + documentosLyceum.length)
         console.log("Documentos Ausentes: " + documentosAusentes.length)
-
-       for(const docAusentes of documentosAusentes){
-            console.log(docAusentes)
-           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
-       }
         
+
+      /* for(const docAusentes of documentosAusentes){
+            console.log(docAusentes);
+           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
+       }*/
+        return 'Deu certo';
     }
 
 
