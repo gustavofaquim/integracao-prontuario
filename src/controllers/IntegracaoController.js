@@ -121,11 +121,13 @@ class IntegracaoController{
                 //"nomes_tipodocumento": tipoDoc,
                 "resultados_pagina": 15000,
                 "resultado_inicial": 0,
-                "dataDe": "2023-07-01",
-                "dataAte": "2023-07-07",
+                "dataDe": "2023-06-01",
+                "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
-                "indiceBusca": indice
+                "todosOsDocumentos": true,
+                "indiceBusca": indice,
+                "validarCheckout": false
             };
             
             return new Promise((resolve, reject) => {
@@ -318,7 +320,8 @@ class IntegracaoController{
         }
 
 
-       console.log(documentosAusentes)
+        console.log(documentosAusentes)
+        console.log(documentosAbaris)
         console.log("Documentos Abaris: " + documentosAbaris.length)
         console.log("Documentos Lyceum: " + documentosLyceum.length)
         console.log("Documentos Ausentes: " + documentosAusentes.length)
