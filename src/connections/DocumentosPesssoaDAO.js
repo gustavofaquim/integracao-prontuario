@@ -20,16 +20,9 @@ class DocumentosPessoaDAO{
   }
 
   async inserirDocumento(documento){
-    console.log('Entrou na inserção de dados');
     
     try{
       await sql.connect(Conexao.config);
-
-      
-
-     // console.log(`ALUNO: ${documento.ALUNO}`)
-
-      // Criando uma solicitação (request) para a inserção
       const request = new sql.Request();
 
        // Executando o comando de inserção
@@ -60,8 +53,11 @@ class DocumentosPessoaDAO{
       console.log('Erro:', err);
       throw new Error("Erro ao gravar documento");
     }finally {
-      // Fechando a conexão com o banco de dados
-      sql.close();
+      try {
+        await sql.close();
+    } catch (closeErr) {
+        console.error('Erro ao fechar a conexão:', closeErr);
+    }
     }
 
   }

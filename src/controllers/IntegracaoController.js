@@ -97,7 +97,7 @@ class IntegracaoController{
             const novoElemento = {
                 "nome": "CODIGO SIGA",
                 "operador": "=",
-                "valor": tipoIndice
+                "valor": "125.43 - GRADUAÇÃO"
             };
 
             indice.push(novoElemento);
@@ -119,9 +119,8 @@ class IntegracaoController{
             const post = {
                 "ids_tipodocumento": idsTiposDoc,
                 //"nomes_tipodocumento": tipoDoc,
-                "resultados_pagina": 15000,
                 "resultado_inicial": 0,
-                "dataDe": "2023-06-01",
+                "dataDe": "2023-08-01",
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
@@ -192,10 +191,6 @@ class IntegracaoController{
 
             const resultados = await Promise.all(dados.map(async (e) => {
 
-                //console.log('------ DOCS ------')
-               // console.log(e);
-
-
                 let id_doc;
 
                 switch(e.nomeTipoDocumento){
@@ -228,6 +223,8 @@ class IntegracaoController{
                         break; 
                 }
 
+                console.log(id_doc);
+
                 const matricula = [];
                 
                 const caminhoCompleto = e.caminhoCompleto;
@@ -250,33 +247,38 @@ class IntegracaoController{
                 const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}.${milissegundos}`;
 
 
-                const pessoaPromises = e.documentoIndice
-                .filter(indice => indice.nomeIndice == 'MATRICULA')
-                .map(async indice => {
+                const pessoaPromises = await  Promise.all(
+                    e.documentoIndice
+                    .filter(indice => indice.nomeIndice == 'MATRICULA')
+                    .map(async indice => {
+                        
+                        //matricula.unshift(indice.valor);
+                        
+                        const pessoa = await this.dadosAluno(indice.valor);
                     
-                    //matricula.unshift(indice.valor);
-                    
-                    const pessoa = await this.dadosAluno(indice.valor);
-                
-                    documentosAbaris.push({
-                        ID_DOCUMENTO_PROCESSO : id_doc,
-                        PESSOA: pessoa.pessoa,
-                        ALUNO: indice.valor,
-                        STATUS: 'Entregue',
-                        DT_ENTREGA: dataHoraFormatada,
-                        ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
-                        EXTENSAO: 'pdf', 
-                        ORIGEM: 'Migração Ábaris',
-                        ACEITO: 'S',
-                        FORMA_ARMAZENAMENTO: 'Nuvem',
-                        NOME_ARQUIVO: nomeDocumento,
-                        DT_INSERCAO: dataHoraFormatada,
-                        DT_ULT_ALT: dataHoraFormatada,
-                        CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
+                        documentosAbaris.push({
+                            ID_DOCUMENTO_PROCESSO : id_doc,
+                            PESSOA: pessoa.pessoa,
+                            ALUNO: indice.valor,
+                            STATUS: 'Entregue',
+                            DT_ENTREGA: dataHoraFormatada,
+                            ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
+                            EXTENSAO: 'pdf', 
+                            ORIGEM: 'Migração Ábaris',
+                            ACEITO: 'S',
+                            FORMA_ARMAZENAMENTO: 'Nuvem',
+                            NOME_ARQUIVO: nomeDocumento,
+                            DT_INSERCAO: dataHoraFormatada,
+                            DT_ULT_ALT: dataHoraFormatada,
+                            CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
+                        })
                     })
-                });
+                );
             }));
 
+            //console.log('Quantidade DADOS: ' + dados.length) //retornando a quantidade certa de documentos
+            //console.log('Quantidade de Abaris: ' + documentosAbaris.length) //retornando a quantidade certa de documentos
+            
             return documentosAbaris;
 
         }catch(error){
@@ -286,7 +288,7 @@ class IntegracaoController{
     }
 
 
-    async inserirDados(){
+    async inserirDados(req,res){
 
         // Documentos retornados da API do Ábaris
         const documentosAbaris = await this.trataDados();
@@ -303,11 +305,8 @@ class IntegracaoController{
 
             // Percorrer os documentos do Lyceum
             for (const docLyceum of documentosLyceum) {
-                //console.log('Ábaris: ' + docAbaris.ID_DOC_GED +  ' Lyceum: ' + docLyceum.ID_DOC_GED)
-                
+    
                 if (docAbaris.ID_DOC_GED == docLyceum.ID_DOC_GED) {
-                        //console.log('---------------------------Achou um documento -------------------------------')
-                        //console.log('Ábaris: ' + docAbaris.ID_DOC_GED +  ' Lyceum: ' + docLyceum.ID_DOC_GED)
                         documentoEncontrado = true;
                         break;
                 }
@@ -317,20 +316,23 @@ class IntegracaoController{
             if (!documentoEncontrado) {
                 documentosAusentes.push(docAbaris);
             }
+            else{
+
+            }
         }
 
 
-        console.log(documentosAusentes)
-        console.log(documentosAbaris)
+        //console.log(documentosAusentes)
+        //console.log(documentosAbaris)
         console.log("Documentos Abaris: " + documentosAbaris.length)
         console.log("Documentos Lyceum: " + documentosLyceum.length)
         console.log("Documentos Ausentes: " + documentosAusentes.length)
-        
-
-      /* for(const docAusentes of documentosAusentes){
+         
+       
+        for(const docAusentes of documentosAusentes){
             console.log(docAusentes);
-           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
-       }*/
+            DocumentosPesssoaDAO.inserirDocumento(docAusentes)
+       }
         return 'Deu certo';
     }
 
