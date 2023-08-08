@@ -1,5 +1,9 @@
 import axios from "axios";
 import DocumentosPesssoaDAO from "../connections/DocumentosPesssoaDAO.js";
+import logger  from '../logs/Logger.js';
+import fs from "fs";
+
+
 
 class IntegracaoController{
 
@@ -10,8 +14,31 @@ class IntegracaoController{
     }
  
     index (req,res){
-        res.render("inicio.ejs");
+
+        logger.readLogFile((err, logData) => {
+            let log = [];
+
+            if (err) {
+                log.push('Erro ao ler o arquivo de log: ' + err);
+            } else {
+                
+                const logLines = logData.split('\n');
+                log = logLines.map(line => {
+                    try {
+                        return JSON.parse(line);
+                    } catch (e) {
+                        // Tratar erro de análise JSON
+                        return { error: 'Erro de análise JSON', line };
+                    }
+                });
+            }
+            
+            res.render("inicio.ejs", { log });
+        });
+        
+       
     }
+
 
     autenticacao(){
 
@@ -20,8 +47,8 @@ class IntegracaoController{
              // const user = autenticacao.user;
             // const pass = autenticacao.password;
 
-            const user = "gustavo.faquim";
-            const pass = "wtf@13Zy";
+            const user = "integracao-prontuario";
+            const pass = "A#f!325S";
             
 
             // URL e cabeçalhos
@@ -36,8 +63,8 @@ class IntegracaoController{
 
             // Corpo da solicitação POST
             const data = {
-                userName: 'gustavo.faquim',
-                password: 'wtf@13Zy'
+                userName: 'integracao-prontuario',
+                password: 'A#f!325S'
             };
 
             // Fazer a requisição POST usando Axios
@@ -322,8 +349,6 @@ class IntegracaoController{
         }
 
 
-        //console.log(documentosAusentes)
-        //console.log(documentosAbaris)
         console.log("Documentos Abaris: " + documentosAbaris.length)
         console.log("Documentos Lyceum: " + documentosLyceum.length)
         console.log("Documentos Ausentes: " + documentosAusentes.length)
@@ -331,9 +356,25 @@ class IntegracaoController{
        
         for(const docAusentes of documentosAusentes){
             console.log(docAusentes);
-            DocumentosPesssoaDAO.inserirDocumento(docAusentes)
+           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
+           
        }
-        return 'Deu certo';
+
+        const dataAtual = new Date();
+        const ano = dataAtual.getFullYear();
+        const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
+        const dia = dataAtual.getDate().toString().padStart(2, '0');
+        const horas = dataAtual.getHours().toString().padStart(2, '0');
+        const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
+        const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
+    
+        const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+
+       const integrationData = { status: 'Sucesso', msg: 'Integração executada com sucesso', quant: documentosAusentes.length, date: dataHoraFormatada };
+
+       logger.info('', integrationData);
+       return 'Deu certo';
     }
 
 

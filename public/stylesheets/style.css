@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100;200;300;400;500;600;700;900&display=swap');
+
+
+body{
+    font-family: 'Hanken Grotesk', sans-serif !important;
+
+}
+
+.active{
+    border-bottom: 2px solid #0d6efd;
+}
+
+#conteudo{
+    display: flex;
+    margin-top: 50px;
+}
+
+
+.container-integracoes{
+    margin-top: 70px;
+    display: block;
+}
+
+#btn-integracao, #loading{
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    box-shadow: 4px 4px 23px -12px rgba(9,94,222,1);
+    transition: transform 0.3s;
+    transform-origin: left center;
+    cursor: pointer;
+}
+
+
+.container-integracoes h4{
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.container-integracoes span{
+    color: #0b72e0;
+    padding: 5px;
+}
+
+
+
+#icon-ativa{
+    color: #3CB371;
+}
+
+#icon-off{
+    color: #B22222;
+}
+
+#msg{
+    display: block;
+    margin-top: 30px;
+    padding: 10px;
+    font-size: 18pt;
+    text-align: center;
+    width: 500px;
+    border-radius: 5px;
+}
+.div-success{
+    background-color:  #1ac6e094;
+}
+
+.div-error{
+    background-color: #B22222;
+    color: #fff;
+}
+
+
+/* Define a animação de carregamento */
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Adiciona a animação de carregamento à classe .loading */
+
+.loading::after {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  float: right;
+  border: 3px solid #fff;
+  border-top-color: #000;
+  animation: loading 1.5s ease-in-out infinite;
+  margin: auto;
+  margin-top: -2px;
+}
+
+/* Define a posição do ícone de carregamento */
+button.loading {
+  position: initial;
+}
+
+button.loading .loading::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+
+
+
+#pageMessages {
+    position: fixed;
+    top: 120px;
+    right: 15px;
+    width: 30%;
+}
+  
+.alert {
+position: relative;
+}
+
+.alert .close {
+position: absolute;
+top: 5px;
+right: 5px;
+font-size: 1em;
+}
+
+.alert .fa {
+margin-right:.3em;
+}
+
+.removeDisplay{
+display: none;
+}
+
+
+.container-logs{
+   margin-top: 80px;
+   font-size: 1.2rem; 
+}
+
+.container-logs span{
+    font-weight: 800;
+}
+
+.container-logs p, h3 {
+    color: #869ab8;
+}
+
+.container-logs i{
+    font-size: 1.8rem;
+    color: #417ec0;
+ }
+
+.container-logs .card{
+    padding: 15px;
+}
+
+.container-logs h3{
+    color: #5786cc;
+    margin-top: 10px;
+}
+
+
+
