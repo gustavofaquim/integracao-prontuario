@@ -28,15 +28,15 @@ app.use(express.json());
 
 // Rotas 
 app.get('/',  IntegracaoController.index)
-app.get('/api',  IntegracaoController.consultaDocumentos)
+app.get('/consultaDocumentos',  IntegracaoController.consultaDocumentos)
 //app.get('/teste',  IntegracaoController.trataDados)
-app.get('/teste', async (req, res) => {
+app.get('/api', async (req, res) => {
     try {
       const dados = await IntegracaoController.inserirDados();
-      res.send(`Dados tratados com sucesso`);
+      res.status(200).json({success: [{msg:  'Sucesso ao sincronizar os documentos'}]})
     } catch (error) {
       console.error('Erro no tratamento de dados:', error);
-      res.status(500).send('Ocorreu um erro no tratamento de dados');
+      res.status(200).json({error: [{msg:  'Ocorreu um erro no tratamento de dados'}]})
     }
 });
 

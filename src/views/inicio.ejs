@@ -1,4 +1,50 @@
+<%- include('template/header'); %>
+
+<div class="container">
+    
+    <seciton id="conteudo">
+    </seciton>
 
 
 
-<p>Teste de página</p>
+<div class='home'>
+    <div class="container-integracoes">
+        <div class="col-sm-8">
+            <h2>Integração do Ábaris com o <span>Prontuário de Documentos</span> do Lyceum</h2>
+            <form id='dispara-lyceum'>
+                <button class="btn btn-primary btn-integracao" id='btn-integracao'>Sincronizar Documentos&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-arrow-right"></i></button>
+                <!--<button id="loading" disabled style="display: none;"></button>-->
+                <button id="loading" class="btn btn-warning" disabled style="display: none;">Carregando Documentos&nbsp;&nbsp;&nbsp;&nbsp; </button>
+            </form>
+        </div>
+        
+    </div>
+
+    
+    <div class="container container-logs">
+        <div class="row">
+
+          <div class="col-sm">
+            <i class="fa-regular fa-clock"></i> 
+            <h3>Últimas execuções</h3>
+            <% for (const entry of log) { %>
+              <% if (entry.date) { %>
+                <p><%= entry.date %> - <span><%= entry.quant %></span> Documentos Integrados com sucesso.</p>
+              <% }%>
+            <% } %>
+          </div>
+
+          
+        </div>
+    </div>
+
+    
+</div>
+
+
+<div class="alert" id="msg"> </div>
+
+
+</div>
+
+<%- include('template/footer'); %>
