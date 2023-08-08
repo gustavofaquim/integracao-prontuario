@@ -27,6 +27,7 @@
           <div class="col-sm">
             <i class="fa-regular fa-clock"></i> 
             <h3>Últimas execuções</h3>
+            <% log.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
             <% for (const entry of log) { %>
               <% if (entry.date) { %>
                 <p><%= entry.date %> - <span><%= entry.quant %></span> Documentos Integrados com sucesso.</p>
