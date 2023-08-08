@@ -11,8 +11,9 @@ class Logger {
                 new winston.transports.Console(), // Log para o console
                 new winston.transports.File({ 
                     filename: 'src/logs/integration.log', 
-                    maxsize: 5 * 1024 * 1024,
+                    maxsize: 3 * 1024,
                     maxFiles: 10,
+                    tailable: true,
                 }) // Log para um arquivo
             ]
         });
