@@ -29,7 +29,7 @@ app.use(express.json());
 // Rotas 
 app.get('/',  IntegracaoController.index)
 app.get('/consultaDocumentos',  IntegracaoController.consultaDocumentos)
-//app.get('/teste',  IntegracaoController.trataDados)
+app.get('/consultaLogs', IntegracaoController.consultaLogs)
 app.get('/api', async (req, res) => {
     try {
       const dados = await IntegracaoController.inserirDados();

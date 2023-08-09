@@ -35,6 +35,7 @@ $(document).on('click', '.btn-integracao', function (event) {
                 
                 loadingButton.hide(); // Esconde o botão de carregamento
                 button.show();
+                location.reload();
             },
             success: function(result){
                 console.log(result)

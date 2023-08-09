@@ -30,8 +30,11 @@
             <% log.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
             <% for (const entry of log) { %>
               <% if (entry.date) { %>
-                <p><%= entry.date %> - <span><%= entry.quant %></span> Documentos Integrados com sucesso.</p>
-              <% }%>
+                <% if (entry.quant > 0) { %>
+                  <p><%= entry.date %> - <span><%= entry.quant %></span> Documentos Integrados com sucesso.</p>
+                <% } else { %>
+                  <p><%= entry.date %> - Não existem novos documentos para serem integrados.</p>
+              <% } }%>
             <% } %>
           </div>
 

@@ -11,41 +11,44 @@ class IntegracaoController{
         this.autenticacao = this.autenticacao.bind(this);
         this.consultaDocumentos = this.consultaDocumentos.bind(this);
         this.trataDados = this.trataDados.bind(this);
+        this.consultaLogs = this.consultaLogs.bind(this);
+        this.index = this.index.bind(this);
     }
  
     index (req,res){
-
-        logger.readLogFile((err, logData) => {
-            let log = [];
-
+        this.consultaLogs((err, log) => {
             if (err) {
-                log.push('Erro ao ler o arquivo de log: ' + err);
-            } else {
-                
-                const logLines = logData.split('\n');
-                log = logLines.map(line => {
-                    try {
-                        return JSON.parse(line);
-                    } catch (e) {
-                        // Tratar erro de análise JSON
-                        return { error: 'Erro de análise JSON', line };
-                    }
-                });
+                return;
             }
-            
             res.render("inicio.ejs", { log });
-        });
-        
-       
+        }); 
     }
+    
+
+    consultaLogs(callback) { // Adicione o parâmetro de callback
+        logger.readLogFile((err, logData) => {
+            if (err) {
+                return callback(err, []);
+            }
+    
+            const logLines = logData.split('\n');
+            const log = logLines.map(line => {
+                try {
+                    return JSON.parse(line);
+                } catch (e) {
+                    return { error: 'Erro de análise JSON', line };
+                }
+            });
+    
+            return callback(null, log);
+        });
+    }
+    
 
 
     autenticacao(){
 
         return new Promise((resolve, reject) => {
-
-             // const user = autenticacao.user;
-            // const pass = autenticacao.password;
 
             const user = "integracao-prontuario";
             const pass = "A#f!325S";
@@ -160,8 +163,6 @@ class IntegracaoController{
                 // Fazer a requisição POST usando Axios
                 axios.post(url, post, { headers })
                   .then(response => {
-                    //console.log('Deu certo');
-                    //console.log(response.data.documentos);
                     resolve(response.data.documentos);
                   })
                   .catch(error => {
@@ -191,8 +192,6 @@ class IntegracaoController{
                 // Fazer a requisição POST usando Axios
                 axios.get(url, { headers })
                 .then(response => {
-                    //console.log('API do Lyceum');
-                    //console.log(response.data);
                     resolve(response.data);
                 })
                 .catch(error => {
@@ -356,8 +355,7 @@ class IntegracaoController{
        
         for(const docAusentes of documentosAusentes){
             console.log(docAusentes);
-           // DocumentosPesssoaDAO.inserirDocumento(docAusentes)
-           
+            DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
        }
 
         const dataAtual = new Date();
