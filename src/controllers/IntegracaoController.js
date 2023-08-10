@@ -355,7 +355,7 @@ class IntegracaoController{
        
         for(const docAusentes of documentosAusentes){
             console.log(docAusentes);
-            DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
+            //DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
        }
 
         const dataAtual = new Date();
