@@ -8,7 +8,7 @@ const app = express();
 
 import IntegracaoController from "./src/controllers/IntegracaoController.js";
 import Conexao from "./src/connections/Conexao.js";
-import AlunoController from "./src/controllers/AlunoController.js";
+
 import DocumentosPesssoaDAO from "./src/connections/DocumentosPesssoaDAO.js";
 
 
@@ -35,14 +35,12 @@ app.get('/api', async (req, res) => {
       const dados = await IntegracaoController.inserirDados();
       res.status(200).json({success: [{msg:  'Sucesso ao sincronizar os documentos'}]})
     } catch (error) {
-      console.error('Erro no tratamento de dados:', error);
       res.status(200).json({error: [{msg:  'Ocorreu um erro no tratamento de dados'}]})
     }
 });
 
 app.get('/auth',  IntegracaoController.autenticacao)
 
-app.get('/aluno',  AlunoController.listarAluno)
 app.get('/listar-documentos', DocumentosPesssoaDAO.listarDocumentos);
 
 

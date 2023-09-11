@@ -49,10 +49,7 @@ class IntegracaoController{
     autenticacao(){
 
         return new Promise((resolve, reject) => {
-
-            const user = "integracao-prontuario";
-            const pass = "A#f!325S";
-            
+        
 
             // URL e cabeçalhos
             const url = "https://documents.abaris.com.br/api/v1/login/";
@@ -109,17 +106,9 @@ class IntegracaoController{
                 "Content-Type": "application/json"
             }; 
 
-            
-           /* const tipoDoc = [
-                'CPF', 'EXTENSAO', 'CARTEIRA DE IDENTIDADE', 'CERTIDÃO DE CASAMENTO', 
-                'CERTIDÃO DE NASCIMENTO', 'CERTIFICADO ENSINO MÉDIO', 
-                'DOCUMENTO MILITAR', 'HISTÓRICO ESCOLAR',
-                'TERMO DE RESPONSABILIDADE', 'TÍTULO ELEITOR'
-            ]*/
 
             const idsTiposDoc = [79,85,84,80,88,95,81,78,86]
 
-            //console.log(tipoDoc)
 
             let tipoIndice = '125.43 - GRADUAÇÃO'
             const indice = [];
@@ -143,7 +132,7 @@ class IntegracaoController{
             const milissegundos = dataAtual.getMilliseconds().toString().padStart(3, '0');
             
             const dataAtualFormatada = `${ano}-${mes}-${dia}`;
-            console.log(dataAtualFormatada);
+            //console.log(dataAtualFormatada);
 
             
             const post = {
@@ -180,8 +169,8 @@ class IntegracaoController{
 
         try{
            
-            const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
-            //const url = `http://172.16.16.106:8080/api/matricula/codAluno/${matricula}/obterAluno`;
+            //const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
+            const url = `http://172.16.16.106:8080/api/matricula/codAluno/${matricula}/obterAluno`;
 
             const headers = {
                'Authorization': 'Basic YXBpdXNlcjphcGl1c2VyQDEyMw==',
@@ -195,7 +184,8 @@ class IntegracaoController{
                     resolve(response.data);
                 })
                 .catch(error => {
-                    console.error(error);
+                    console.log(`Erro ao recuperar matricula do Lyceum: ${matricula}`)
+                    //console.error(error);
                     reject(error);
                 });
             });
@@ -211,7 +201,7 @@ class IntegracaoController{
         
         try{
             const dados = await this.consultaDocumentos()
-            console.log('Entrou no tratamento de dados')
+            //console.log('Entrou no tratamento de dados')
             
             const documentosAbaris = [];
 
@@ -249,7 +239,7 @@ class IntegracaoController{
                         break; 
                 }
 
-                console.log(id_doc);
+                //console.log(id_doc);
 
                 const matricula = [];
                 
@@ -302,13 +292,11 @@ class IntegracaoController{
                 );
             }));
 
-            //console.log('Quantidade DADOS: ' + dados.length) //retornando a quantidade certa de documentos
-            //console.log('Quantidade de Abaris: ' + documentosAbaris.length) //retornando a quantidade certa de documentos
-            
+
             return documentosAbaris;
 
         }catch(error){
-            console.log("Erro no tratamento de dados: ", error)
+            console.log("Erro no tratamento de dados: ")
             throw error;
         }
     }
@@ -354,8 +342,8 @@ class IntegracaoController{
          
        
         for(const docAusentes of documentosAusentes){
-            console.log(docAusentes);
-            //DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
+            //console.log(docAusentes);
+            DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
        }
 
         const dataAtual = new Date();
