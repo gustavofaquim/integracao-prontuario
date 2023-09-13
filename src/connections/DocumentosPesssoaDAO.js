@@ -1,66 +1,85 @@
-
 import sql from "mssql";
 import Conexao from "./Conexao.js";
 
-class DocumentosPessoaDAO{
+class DocumentosPessoaDAO {
 
-  async listarDocumentos() {
-        try {
-          const pool = await sql.connect(Conexao.config);
-          const result = await pool.request().query('SELECT ID, ID_DOCUMENTO_PROCESSO, PESSOA, ID_DOC_GED FROM LY_DOCUMENTOS_PESSOA WHERE ID_DOC_GED IS NOT NULL');
-          return result.recordset
-          //res.send(result.recordset);
-        } catch (err) {
-          console.error('Erro ao buscar usuários:', err);
-          throw new Error("Erro ao buscar documentos");
-          //res.status(500).send('Erro ao buscar usuários');
-        }finally {
-          sql.close();
-        }
+  constructor() {
+    this.pool = new sql.ConnectionPool({
+      ...Conexao.config,
+      pool: {
+        max: 50, // Ajuste este valor conforme necessário
+      }
+    });
   }
 
-  async inserirDocumento(documento){
-    
-    try{
-      await sql.connect(Conexao.config);
-      const request = new sql.Request();
 
-       // Executando o comando de inserção
-       const query = `INSERT INTO LY_DOCUMENTOS_PESSOA (ID_DOCUMENTO_PROCESSO,PESSOA, ALUNO, STATUS, DT_ENTREGA, ID_DOC_GED, EXTENSAO, ORIGEM, ACEITO, FORMA_ARMAZENAMENTO, NOME_ARQUIVO, DT_INSERCAO, DT_ULT_ALT, CODIGO_SIGA) 
+  async listarDocumentos() {
+    let pool;
+
+    try {
+      pool = await this.pool.connect();
+
+      const result = await pool
+        .request()
+        .query(
+          'SELECT ID, ID_DOCUMENTO_PROCESSO, PESSOA, ID_DOC_GED FROM LY_DOCUMENTOS_PESSOA WHERE ID_DOC_GED IS NOT NULL'
+          );
+
+      return result.recordset;
+
+    } catch (err) {
+      //console.error('Erro ao buscar documentos:', err);
+      throw new Error('Erro ao buscar documentos');
+    } finally {
+      if (pool) {
+        pool.close();
+      }
+    }
+  }
+
+  async inserirDocumento(documento) {
+    let pool;
+   
+
+    try {
+      pool = await this.pool.connect();
+      const request = pool.request();
+
+      const query = `
+        INSERT INTO LY_DOCUMENTOS_PESSOA 
+        (ID_DOCUMENTO_PROCESSO, PESSOA, ALUNO, STATUS, DT_ENTREGA, ID_DOC_GED, EXTENSAO, ORIGEM, ACEITO, FORMA_ARMAZENAMENTO, NOME_ARQUIVO, DT_INSERCAO, DT_ULT_ALT, CODIGO_SIGA) 
         VALUES (
-        '${documento.ID_DOCUMENTO_PROCESSO}',
-        '${documento.PESSOA}', 
-        '${documento.ALUNO}', 
-        '${documento.STATUS}',
-        '${documento.DT_ENTREGA}',
-        '${documento.ID_DOC_GED}',
-        '${documento.EXTENSAO}', 
-        '${documento.ORIGEM}',
-        '${documento.ACEITO}',
-        '${documento.FORMA_ARMAZENAMENTO}',
-        '${documento.NOME_ARQUIVO}',
-        '${documento.DT_INSERCAO}',
-        '${documento.DT_ULT_ALT}',
-        '${documento.CODIGO_SIGA}')`;
+        @ID_DOCUMENTO_PROCESSO, @PESSOA, @ALUNO, @STATUS, @DT_ENTREGA, @ID_DOC_GED, @EXTENSAO, @ORIGEM, @ACEITO, @FORMA_ARMAZENAMENTO, @NOME_ARQUIVO, @DT_INSERCAO, @DT_ULT_ALT, @CODIGO_SIGA
+        )`;
 
-        // Executando o comando de inserção
-        await request.query(query);  
+      await request
+        .input('ID_DOCUMENTO_PROCESSO', documento.ID_DOCUMENTO_PROCESSO)
+        .input('PESSOA',  documento.PESSOA)
+        .input('ALUNO',  documento.ALUNO)
+        .input('STATUS',  documento.STATUS)
+        .input('DT_ENTREGA', documento.DT_ENTREGA)
+        .input('ID_DOC_GED',  documento.ID_DOC_GED)
+        .input('EXTENSAO',  documento.EXTENSAO)
+        .input('ORIGEM',  documento.ORIGEM)
+        .input('ACEITO',  documento.ACEITO)
+        .input('FORMA_ARMAZENAMENTO',  documento.FORMA_ARMAZENAMENTO)
+        .input('NOME_ARQUIVO',  documento.NOME_ARQUIVO)
+        .input('DT_INSERCAO',  documento.DT_INSERCAO)
+        .input('DT_ULT_ALT',  documento.DT_ULT_ALT)
+        .input('CODIGO_SIGA',  documento.CODIGO_SIGA)
+        .query(query);
 
-       // console.log('Dados inseridos com sucesso.');
-        return 'Dados inseridos com sucesso.';
-
-    }catch(err){
-      console.log('Erro:', err);
-      throw new Error("Erro ao gravar documento");
-    }finally {
-      try {
-        await sql.close();
-    } catch (closeErr) {
-        console.error('Erro ao fechar a conexão:', closeErr);
+      return 'Dados inseridos com sucesso.';
+      
+    } catch (err) {
+      console.error(`Erro ao gravar documento: ${documento.ID_DOCUMENTO_PROCESSO} - matricula: ${documento.ALUNO} - ${err}` );
+      throw new Error('Erro ao gravar documento');
+    } finally {
+      if (pool) {
+        pool.close();
+      }
     }
-    }
-
   }
 }
 
-export default new DocumentosPessoaDAO()
+export default new DocumentosPessoaDAO();

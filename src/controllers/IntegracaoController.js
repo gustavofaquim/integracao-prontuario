@@ -143,7 +143,7 @@ class IntegracaoController{
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
-                "todosOsDocumentos": true,
+                //"todosOsDocumentos": true,
                 "indiceBusca": indice,
                 "validarCheckout": false
             };
@@ -169,8 +169,8 @@ class IntegracaoController{
 
         try{
            
-            //const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
-            const url = `http://172.16.16.106:8080/api/matricula/codAluno/${matricula}/obterAluno`;
+            const url = `http://172.16.16.37:8080/api/matricula/codAluno/${matricula}/obterAluno`;
+            //const url = `http://172.16.16.106:8080/api/matricula/codAluno/${matricula}/obterAluno`;
 
             const headers = {
                'Authorization': 'Basic YXBpdXNlcjphcGl1c2VyQDEyMw==',
@@ -304,63 +304,76 @@ class IntegracaoController{
 
     async inserirDados(req,res){
 
-        // Documentos retornados da API do Ábaris
-        const documentosAbaris = await this.trataDados();
-       
-        // Documentos retornados do Lyceum (via banco)
-        const documentosLyceum = await DocumentosPesssoaDAO.listarDocumentos();
+        try {
+            
+            // Documentos retornados da API do Ábaris
+            const documentosAbaris = await this.trataDados();
         
-        // Array para armazenar os documentos ausentes
-        const documentosAusentes = [];
+            // Documentos retornados do Lyceum (via banco)
+            const documentosLyceum = await DocumentosPesssoaDAO.listarDocumentos();
+            
+            // Array para armazenar os documentos ausentes
+            const documentosAusentes = [];
 
-        // Percorrer os documentos do Ábaris
-        for (const docAbaris of documentosAbaris) {
-            let documentoEncontrado = false;
+            // Percorrer os documentos do Ábaris
+            for (const docAbaris of documentosAbaris) {
+                let documentoEncontrado = false;
 
-            // Percorrer os documentos do Lyceum
-            for (const docLyceum of documentosLyceum) {
-    
-                if (docAbaris.ID_DOC_GED == docLyceum.ID_DOC_GED) {
-                        documentoEncontrado = true;
-                        break;
+                // Percorrer os documentos do Lyceum
+                for (const docLyceum of documentosLyceum) {
+        
+                    if (docAbaris.ID_DOC_GED == docLyceum.ID_DOC_GED) {
+                            documentoEncontrado = true;
+                            break;
+                    }
+                }
+
+                // Se o documento não foi encontrado no Lyceum, adicionar aos documentos ausentes
+                if (!documentoEncontrado) {
+                    documentosAusentes.push(docAbaris);
                 }
             }
 
-            // Se o documento não foi encontrado no Lyceum, adicionar aos documentos ausentes
-            if (!documentoEncontrado) {
-                documentosAusentes.push(docAbaris);
-            }
-            else{
 
-            }
+            console.log("Documentos Abaris: " + documentosAbaris.length)
+            console.log("Documentos Lyceum: " + documentosLyceum.length)
+            console.log("Documentos Ausentes: " + documentosAusentes.length)
+            
+        
+            /*for(const docAusentes of documentosAusentes){
+                //console.log(docAusentes);
+                DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
+            } */
+
+            // Processar inserções de forma assíncrona
+            const insercoesPromises = documentosAusentes.map(async (docAusentes) => {
+                //console.log(docAusentes);
+                await DocumentosPesssoaDAO.inserirDocumento(docAusentes);
+            });
+
+            
+            // Aguardar a conclusão de todas as inserções
+            await Promise.all(insercoesPromises);
+
+            const dataAtual = new Date();
+            const ano = dataAtual.getFullYear();
+            const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
+            const dia = dataAtual.getDate().toString().padStart(2, '0');
+            const horas = dataAtual.getHours().toString().padStart(2, '0');
+            const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
+            const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
+        
+            const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+            const integrationData = { status: 'Sucesso', msg: 'Integração executada com sucesso', quant: documentosAusentes.length, date: dataHoraFormatada };
+
+            logger.info('', integrationData);
+            return 'Deu certo';
+
+        } catch (error) {
+            console.error(error);
+            return 'Ocorreu um erro durante a inserção de documentos.';
         }
-
-
-        console.log("Documentos Abaris: " + documentosAbaris.length)
-        console.log("Documentos Lyceum: " + documentosLyceum.length)
-        console.log("Documentos Ausentes: " + documentosAusentes.length)
-         
-       
-        for(const docAusentes of documentosAusentes){
-            //console.log(docAusentes);
-            DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
-       }
-
-        const dataAtual = new Date();
-        const ano = dataAtual.getFullYear();
-        const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
-        const dia = dataAtual.getDate().toString().padStart(2, '0');
-        const horas = dataAtual.getHours().toString().padStart(2, '0');
-        const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
-        const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
-    
-        const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
-
-
-       const integrationData = { status: 'Sucesso', msg: 'Integração executada com sucesso', quant: documentosAusentes.length, date: dataHoraFormatada };
-
-       logger.info('', integrationData);
-       return 'Deu certo';
     }
 
 
