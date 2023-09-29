@@ -126,32 +126,39 @@ class IntegracaoController{
             const ano = dataAtual.getFullYear();
             const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0'); // Os meses são indexados de 0 a 11
             const dia = dataAtual.getDate().toString().padStart(2, '0');
-            const horas = dataAtual.getHours().toString().padStart(2, '0');
-            const minutos = dataAtual.getMinutes().toString().padStart(2, '0');
-            const segundos = dataAtual.getSeconds().toString().padStart(2, '0');
-            const milissegundos = dataAtual.getMilliseconds().toString().padStart(3, '0');
             
             const dataAtualFormatada = `${ano}-${mes}-${dia}`;
             //console.log(dataAtualFormatada);
 
+            const dataAtualObj = new Date(dataAtualFormatada);
+
+            const umaSemanaAtras = new Date(dataAtualObj);
+            umaSemanaAtras.setDate(dataAtualObj.getDate() - 5);
+
+            const diaAtras = umaSemanaAtras.getDate().toString().padStart(2, '0');
+
+            const umaSemanaAtrasFormatada = `${ano}-${mes}-${diaAtras}`;
             
+        
             const post = {
                 "ids_tipodocumento": idsTiposDoc,
-                //"nomes_tipodocumento": tipoDoc,
                 "resultado_inicial": 0,
-                "dataDe": "2023-08-01",
+                "dataDe": umaSemanaAtrasFormatada,
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
-                //"todosOsDocumentos": true,
                 "indiceBusca": indice,
-                "validarCheckout": false
             };
             
             return new Promise((resolve, reject) => {
                 // Fazer a requisição POST usando Axios
                 axios.post(url, post, { headers })
                   .then(response => {
+                    
+                    //const documentos = response.data.documentos
+                    //logger.info('', documentos);
+                    //console.log("Resposta da API do Ábaris: ", response.data.documentos);
+
                     resolve(response.data.documentos);
                   })
                   .catch(error => {
@@ -159,6 +166,8 @@ class IntegracaoController{
                     reject(error);
                   });
               });
+
+              
 
         }catch (error) {
             console.error('Erro na autenticação:', error);
@@ -268,10 +277,10 @@ class IntegracaoController{
                     .filter(indice => indice.nomeIndice == 'MATRICULA')
                     .map(async indice => {
                         
-                        //matricula.unshift(indice.valor);
-                        
+                    
                         const pessoa = await this.dadosAluno(indice.valor);
                     
+                   
                         documentosAbaris.push({
                             ID_DOCUMENTO_PROCESSO : id_doc,
                             PESSOA: pessoa.pessoa,
@@ -339,11 +348,6 @@ class IntegracaoController{
             console.log("Documentos Lyceum: " + documentosLyceum.length)
             console.log("Documentos Ausentes: " + documentosAusentes.length)
             
-        
-            /*for(const docAusentes of documentosAusentes){
-                //console.log(docAusentes);
-                DocumentosPesssoaDAO.inserirDocumento(docAusentes)   
-            } */
 
             // Processar inserções de forma assíncrona
             const insercoesPromises = documentosAusentes.map(async (docAusentes) => {
