@@ -139,9 +139,10 @@ class IntegracaoController{
 
             const umaSemanaAtrasFormatada = `${ano}-${mes}-${diaAtras}`;
             
-        
+            
             const post = {
                 "ids_tipodocumento": idsTiposDoc,
+                "resultados_pagina": 19000,
                 "resultado_inicial": 0,
                 "dataDe": umaSemanaAtrasFormatada,
                 "dataAte": dataAtualFormatada,
