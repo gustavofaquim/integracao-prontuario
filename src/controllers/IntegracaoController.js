@@ -140,26 +140,24 @@ class IntegracaoController{
             const umaSemanaAtrasFormatada = `${ano}-${mes}-${diaAtras}`;
             
             
-            const post = {
+            const doc = {
                 "ids_tipodocumento": idsTiposDoc,
                 "resultados_pagina": 19000,
-                "resultado_inicial": 0,
-                "dataDe": umaSemanaAtrasFormatada,
+                "dataDe": '2023-10-01',
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
                 "indiceBusca": indice,
             };
+
+            const post = JSON.stringify(doc).replace(/'/g, '"');
+
             
             return new Promise((resolve, reject) => {
                 // Fazer a requisição POST usando Axios
                 axios.post(url, post, { headers })
                   .then(response => {
                     
-                    //const documentos = response.data.documentos
-                    //logger.info('', documentos);
-                    //console.log("Resposta da API do Ábaris: ", response.data.documentos);
-
                     resolve(response.data.documentos);
                   })
                   .catch(error => {
@@ -278,26 +276,29 @@ class IntegracaoController{
                     .filter(indice => indice.nomeIndice == 'MATRICULA')
                     .map(async indice => {
                         
-                    
-                        const pessoa = await this.dadosAluno(indice.valor);
+                        if(indice.valor.length <= 8){
+                            const pessoa = await this.dadosAluno(indice.valor);
                     
                    
-                        documentosAbaris.push({
-                            ID_DOCUMENTO_PROCESSO : id_doc,
-                            PESSOA: pessoa.pessoa,
-                            ALUNO: indice.valor,
-                            STATUS: 'Entregue',
-                            DT_ENTREGA: dataHoraFormatada,
-                            ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
-                            EXTENSAO: 'pdf', 
-                            ORIGEM: 'Migração Ábaris',
-                            ACEITO: 'S',
-                            FORMA_ARMAZENAMENTO: 'Nuvem',
-                            NOME_ARQUIVO: nomeDocumento,
-                            DT_INSERCAO: dataHoraFormatada,
-                            DT_ULT_ALT: dataHoraFormatada,
-                            CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
-                        })
+                            documentosAbaris.push({
+                                ID_DOCUMENTO_PROCESSO : id_doc,
+                                PESSOA: pessoa.pessoa,
+                                ALUNO: indice.valor,
+                                STATUS: 'Entregue',
+                                DT_ENTREGA: dataHoraFormatada,
+                                ID_DOC_GED : idDocGeD, /* ID DO DOC NO ABARIS */ 
+                                EXTENSAO: 'pdf', 
+                                ORIGEM: 'Migração Ábaris',
+                                ACEITO: 'S',
+                                FORMA_ARMAZENAMENTO: 'Nuvem',
+                                NOME_ARQUIVO: nomeDocumento,
+                                DT_INSERCAO: dataHoraFormatada,
+                                DT_ULT_ALT: dataHoraFormatada,
+                                CODIGO_SIGA: '125.43 - GRADUAÇÃO' 
+                            })
+                        }
+                    
+                        
                     })
                 );
             }));
@@ -321,12 +322,22 @@ class IntegracaoController{
         
             // Documentos retornados do Lyceum (via banco)
             const documentosLyceum = await DocumentosPesssoaDAO.listarDocumentos();
+
             
             // Array para armazenar os documentos ausentes
             const documentosAusentes = [];
 
             // Percorrer os documentos do Ábaris
-            for (const docAbaris of documentosAbaris) {
+           for (const docAbaris of documentosAbaris) {
+                const documentoEncontrado = documentosLyceum.some(docLyceum => docLyceum.ID_DOC_GED == docAbaris.ID_DOC_GED);
+              
+                if (!documentoEncontrado) {
+                  documentosAusentes.push(docAbaris);
+                }
+            }
+
+            // Percorrer os documentos do Ábaris
+            /*for (const docAbaris of documentosAbaris) {
                 let documentoEncontrado = false;
 
                 // Percorrer os documentos do Lyceum
@@ -342,7 +353,8 @@ class IntegracaoController{
                 if (!documentoEncontrado) {
                     documentosAusentes.push(docAbaris);
                 }
-            }
+            }*/
+
 
 
             console.log("Documentos Abaris: " + documentosAbaris.length)
@@ -351,14 +363,14 @@ class IntegracaoController{
             
 
             // Processar inserções de forma assíncrona
-            const insercoesPromises = documentosAusentes.map(async (docAusentes) => {
-                //console.log(docAusentes);
+           for (const docAusentes of documentosAusentes) {
+                try {
                 await DocumentosPesssoaDAO.inserirDocumento(docAusentes);
-            });
-
-            
-            // Aguardar a conclusão de todas as inserções
-            await Promise.all(insercoesPromises);
+                } catch (err) {
+                console.error(`Erro ao inserir documento: ${err.message}`);
+                // Adote a estratégia de tratamento de erro apropriada aqui
+                }
+            }
 
             const dataAtual = new Date();
             const ano = dataAtual.getFullYear();

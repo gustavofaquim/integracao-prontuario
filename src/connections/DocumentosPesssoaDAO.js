@@ -7,7 +7,7 @@ class DocumentosPessoaDAO {
     this.pool = new sql.ConnectionPool({
       ...Conexao.config,
       pool: {
-        max: 50, // Ajuste este valor conforme necessário
+        max: 100, // Ajuste este valor conforme necessário
       }
     });
   }
@@ -37,9 +37,9 @@ class DocumentosPessoaDAO {
     }
   }
 
+
   async inserirDocumento(documento) {
     let pool;
-   
 
     try {
       pool = await this.pool.connect();
@@ -51,6 +51,9 @@ class DocumentosPessoaDAO {
         VALUES (
         @ID_DOCUMENTO_PROCESSO, @PESSOA, @ALUNO, @STATUS, @DT_ENTREGA, @ID_DOC_GED, @EXTENSAO, @ORIGEM, @ACEITO, @FORMA_ARMAZENAMENTO, @NOME_ARQUIVO, @DT_INSERCAO, @DT_ULT_ALT, @CODIGO_SIGA
         )`;
+
+      //console.log(documento);
+
 
       await request
         .input('ID_DOCUMENTO_PROCESSO', documento.ID_DOCUMENTO_PROCESSO)
@@ -72,7 +75,7 @@ class DocumentosPessoaDAO {
       return 'Dados inseridos com sucesso.';
       
     } catch (err) {
-      console.error(`Erro ao gravar documento: ${documento.ID_DOCUMENTO_PROCESSO} - matricula: ${documento.ALUNO} - ${err}` );
+      console.error(`Erro ao gravar documento: ${documento.ID_DOCUMENTO_PROCESSO} - matricula: ${documento.ALUNO} - ${err.message}` );
       throw new Error('Erro ao gravar documento');
     } finally {
       if (pool) {
