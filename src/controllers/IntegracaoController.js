@@ -143,7 +143,7 @@ class IntegracaoController{
             const doc = {
                 "ids_tipodocumento": idsTiposDoc,
                 "resultados_pagina": 19000,
-                "dataDe": '2023-10-01',
+                "dataDe": '2023-10-09',
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
@@ -365,10 +365,9 @@ class IntegracaoController{
             // Processar inserções de forma assíncrona
            for (const docAusentes of documentosAusentes) {
                 try {
-                await DocumentosPesssoaDAO.inserirDocumento(docAusentes);
+                    await DocumentosPesssoaDAO.inserirDocumento(docAusentes);
                 } catch (err) {
-                console.error(`Erro ao inserir documento: ${err.message}`);
-                // Adote a estratégia de tratamento de erro apropriada aqui
+                    console.error(`Erro ao inserir documento: ${err.message}`);
                 }
             }
 
@@ -382,7 +381,7 @@ class IntegracaoController{
         
             const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
 
-            const integrationData = { status: 'Sucesso', msg: 'Integração executada com sucesso', quant: documentosAusentes.length, date: dataHoraFormatada };
+           const integrationData = { status: 'Sucesso', msg: 'Integração executada com sucesso', quant: documentosAusentes.length, date: dataHoraFormatada };
 
             logger.info('', integrationData);
             return 'Deu certo';
