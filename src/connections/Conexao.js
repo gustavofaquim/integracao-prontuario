@@ -1,27 +1,30 @@
+// Conexao.js
 import sql from "mssql";
-import DatabaseConfig from "./DatabaseConfig.js";
+import { databaseConfig } from "./DatabaseConfig.js";
 
-class Conexao{
-  
-  config = {
-    user: DatabaseConfig.user,
-    password: DatabaseConfig.password,
-    server: DatabaseConfig.server,
-    database: DatabaseConfig.database,
-    port: DatabaseConfig.port,
-    options: DatabaseConfig.options,
-  };
+class Conexao {
+  constructor() {
+    this.config = databaseConfig;
+    this.sql = sql;
+  }
 
   async conectar() {
     try {
-      await sql.connect(this.config);
+      await this.sql.connect(this.config);
       console.log("Conexão bem-sucedida ao banco de dados");
     } catch (err) {
       console.error("Erro ao conectar ao banco de dados:", err);
     }
   }
 
+  async desconectar() {
+    try {
+      await this.sql.close();
+      console.log("Conexão fechada");
+    } catch (err) {
+      console.error("Erro ao fechar a conexão:", err);
+    }
+  }
 }
 
-// padrão Singleton
-export default new Conexao()
+export default new Conexao();

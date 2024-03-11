@@ -27,13 +27,13 @@
           <div class="col-sm">
             <i class="fa-regular fa-clock"></i> 
             <h3>Últimas execuções</h3>
-            <% log.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
-            <% for (const entry of log) { %>
-              <% if (entry.date) { %>
-                <% if (entry.quant > 0) { %>
-                  <p><%= entry.date %> - <span><%= entry.quant %></span> Documentos Integrados com sucesso.</p>
+
+            <% for (const entry of logs) { %>
+              <% if (entry.DATA) { %>
+                <% if (entry.QUANTIDADE > 0) { %>
+                  <p><%= entry.DATA %> <%= entry.MENSAGEM %> - <span><%= entry.QUANTIDADE %> Documentos</span></p>
                 <% } else { %>
-                  <p><%= entry.date %> - Não existem novos documentos para serem integrados.</p>
+                  <p><%=entry.DATA %> Não existem novos documentos para serem integrados.</p>
               <% } }%>
             <% } %>
           </div>

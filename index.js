@@ -1,15 +1,13 @@
 
 import express from "express";
-import axios from "axios";
-
 
 
 const app = express();
 
-import IntegracaoController from "./src/controllers/IntegracaoController.js";
-import Conexao from "./src/connections/Conexao.js";
+import autenticarUsuario from "./src/controllers/autenticarUsuario.js";
+import consultaDocumentos from "./src/controllers/consultaDocumentos.js";
 
-import DocumentosPesssoaDAO from "./src/connections/DocumentosPesssoaDAO.js";
+import homeController from "./src/controllers/homeController.js";
 
 
 
@@ -26,22 +24,14 @@ app.use(express.json());
 
 
 
-// Rotas 
-app.get('/',  IntegracaoController.index)
-app.get('/consultaDocumentos',  IntegracaoController.consultaDocumentos)
-app.get('/consultaLogs', IntegracaoController.consultaLogs)
-app.get('/api', async (req, res) => {
-    try {
-      const dados = await IntegracaoController.inserirDados();
-      res.status(200).json({success: [{msg:  'Sucesso ao sincronizar os documentos'}]})
-    } catch (error) {
-      res.status(200).json({error: [{msg:  'Ocorreu um erro no tratamento de dados'}]})
-    }
-});
+// Novas Implementações
+//Rotas
+app.get('/',  homeController.index)
+app.get('/autenticar', autenticarUsuario.autenticarAbaris);
+app.get("/prepara", consultaDocumentos.preparaInsercao);
+app.get('/consulta-docs', consultaDocumentos.listarTodos);
+app.get('/insere', consultaDocumentos.insereDocumentos);
 
-app.get('/auth',  IntegracaoController.autenticacao)
-
-app.get('/listar-documentos', DocumentosPesssoaDAO.listarDocumentos);
 
 
 app.listen(3000, () => console.log("Servidor instalado e funcionando"));

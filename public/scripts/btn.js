@@ -13,7 +13,7 @@ $(document).on('click', '.btn-integracao', function (event) {
 
 
     $.ajax({
-            url: '/api',
+            url: '/insere',
            
             type: 'GET',
             dataType: "json",

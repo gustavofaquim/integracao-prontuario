@@ -1,5 +1,5 @@
 import axios from "axios";
-import DocumentosPesssoaDAO from "../connections/DocumentosPesssoaDAO.js";
+import DocumentosPesssoaDAO from "../connections/old_DocumentosPesssoaDAO.js";
 import logger  from '../logs/Logger.js';
 import fs from "fs";
 
@@ -111,15 +111,14 @@ class IntegracaoController{
 
 
             let tipoIndice = '125.43 - GRADUAÇÃO'
-            const indice = [];
+            const indice = [
+                {
+                    "nome": "CODIGO SIGA",
+                    "operador": "=",
+                    "valor": "125.43 - GRADUAÇÃO"
+                }
+            ];
 
-            const novoElemento = {
-                "nome": "CODIGO SIGA",
-                "operador": "=",
-                "valor": "125.43 - GRADUAÇÃO"
-            };
-
-            indice.push(novoElemento);
 
 
             const dataAtual = new Date();
@@ -143,7 +142,7 @@ class IntegracaoController{
             const doc = {
                 "ids_tipodocumento": idsTiposDoc,
                 "resultados_pagina": 19000,
-                "dataDe": '2023-10-09',
+                "dataDe": '2023-12-01',
                 "dataAte": dataAtualFormatada,
                 "assinados": true,
                 "nao_assinados": false,
@@ -199,7 +198,7 @@ class IntegracaoController{
             });
 
         }catch(error){
-            console.error('Erro na API do Lyceum:', error);
+            //console.error('Erro na API do Lyceum:', error);
             throw error; // Rejeita a Promessa com o erro
         }
     }
@@ -276,7 +275,7 @@ class IntegracaoController{
                     .filter(indice => indice.nomeIndice == 'MATRICULA')
                     .map(async indice => {
                         
-                        if(indice.valor.length <= 8){
+                        if(indice.valor.length <= 21 ){
                             const pessoa = await this.dadosAluno(indice.valor);
                     
                    
@@ -301,6 +300,7 @@ class IntegracaoController{
                         
                     })
                 );
+                
             }));
 
 
