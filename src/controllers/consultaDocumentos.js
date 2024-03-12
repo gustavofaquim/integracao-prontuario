@@ -3,6 +3,7 @@ import axios from "axios";
 import autenticarUsuario from "./autenticarUsuario.js";
 import dataController from "./dataController.js";
 import documentosDAO from "../bd/documentosDAO.js";
+import alunoController from "./alunoController.js";
 import logsDAO from "../bd/logsDAO.js";
 
 const consultaDocumentos = {
