@@ -21,20 +21,23 @@ const consultaDocumentos = {
             }
             
             const auth = autenticacao.rsaKey;
+            console.log(auth)
 
             const headers = {
                 "x-api-key": auth,
                 "Content-Type": "application/json"
             }; 
 
-            const idsTiposDoc = [79,85,84,80,88,95,81,78,86];
-            const indice = [];
+            const idsTiposDoc = [79,85,84,80,88,95,81,86];
+            
             
             const filtroCodigoSiga = {
                 "nome": "CODIGO SIGA",
                 "operador": "=",
                 "valor": "125.43 - GRADUAÇÃO"
             };
+
+            const indice = [filtroCodigoSiga];
             
             const dataAtual = await dataController.dataAtual();
             
@@ -50,12 +53,14 @@ const consultaDocumentos = {
                 "dataAte": dataAtual,
                 "assinados": true,
                 "nao_assinados": false,
-                "indiceBusca": indice,
+                "indiceBusca": [filtroCodigoSiga],
             };
+
 
             
             const post = JSON.stringify(configBusca).replace(/'/g, '"');
-            
+
+         
             const response = await axios.post(url,post, {headers});
             
             const docs = response.data?.documentos;
@@ -80,6 +85,15 @@ const consultaDocumentos = {
             for (const e of docs) {
 
                 let id_doc;
+
+                /*const registroEncontrado = e.documentoIndice.find(x => x.valor === 'Leonan');
+
+                if (registroEncontrado) {
+                    console.log("O registro específico foi encontrado em documentosAbaris:", registroEncontrado);
+                } else {
+                    console.log("O registro específico não foi encontrado em documentosAbaris.");
+                }*/
+
 
                 // Fazendo depara com os códigos que tem que entrar no Lyceum
                 switch(e.nomeTipoDocumento){
@@ -193,12 +207,13 @@ const consultaDocumentos = {
             const pessoas = resultpessoas.filter(valor => !isNaN(valor)); // Filtrando somente os códigos que são numericos
 
             const documentosLyceum = await alunoController.listarPessoasSemDocumentos(pessoas);
-           
-           
+        
+            
             // Verificar quais documentos existem em documentosAbaris e não em documentosLyceum
             const documentosNaoEncontrados = documentosAbaris.filter(abaris => {
                 return !documentosLyceum.some(lyceum => lyceum.ID_DOC_GED == abaris.ID_DOC_GED);
             });
+
 
             return documentosNaoEncontrados;
 

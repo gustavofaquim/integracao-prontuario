@@ -9,7 +9,7 @@ const logsDAO = {
 
             const logs = [];
 
-            const resultado = await Conexao.sql.query`SELECT STATUS, MENSAGEM, QUANTIDADE, CONVERT(VARCHAR(30), DATA,103) + ' ' + CONVERT(VARCHAR(10), DATA, 108) AS DATA  FROM UNIEV_INTEGRACAO_PRONTUARIO WHERE MONTH(DATA) >= (MONTH(GETDATE()) - 1) ORDER BY DATA DESC`;
+            const resultado = await Conexao.sql.query`SELECT TOP 10 STATUS, MENSAGEM, QUANTIDADE, CONVERT(VARCHAR(30), DATA,103) + ' ' + CONVERT(VARCHAR(10), DATA, 108) AS DATA, DATA AS DATA2  FROM UNIEV_INTEGRACAO_PRONTUARIO WHERE MONTH(DATA) >= (MONTH(GETDATE()) - 1) ORDER BY DATA2 DESC`;
             logs.push(...resultado.recordset);
 
             return logs;

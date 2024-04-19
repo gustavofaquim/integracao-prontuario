@@ -3,3 +3,5 @@
 src/logs/integration.log
 
 src/logs/
+
+.env
